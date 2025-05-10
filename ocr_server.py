@@ -17,19 +17,20 @@ def ocr():
     rows = []
 
     for file in files:
-        image = Image.open(file.stream).convert("RGB")
-        pixel_values = processor(images=image, return_tensors="pt").pixel_values
-        generated_ids = model.generate(pixel_values)
-        text = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
-
-        rows.append({
-            "Source File": file.filename,
-            "Extracted Text": text
-        })
+        try:
+            image = Image.open(file.stream).convert("RGB")
+            pixel_values = processor(images=image, return_tensors="pt").pixel_values
+            generated_ids = model.generate(pixel_values)
+            text = processor.batch_decode(generated_ids, skip_special_tokens=True)[0]
+            print(f"📝 OCR for {file.filename}: {text[:100]}")
+            rows.append({"Source File": file.filename, "Extracted Text": text})
+        except Exception as e:
+            print(f"❌ Error processing {file.filename}: {e}")
 
     output_path = os.path.join(tempfile.gettempdir(), "Invoices_Summary.xlsx")
     pd.DataFrame(rows).to_excel(output_path, index=False)
     return send_file(output_path, as_attachment=True)
+
 
 @app.route("/", methods=["GET"])
 def home():
