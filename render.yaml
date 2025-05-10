@@ -1,0 +1,10 @@
+services:
+  - type: web
+    name: ocr-server
+    env: python
+    repo: https://github.com/YOUR_USERNAME/render-ocr
+    branch: main
+    buildCommand: "pip install -r requirements.txt"
+    startCommand: "python ocr_server.py"
+    plan: free
+    autoDeploy: true
